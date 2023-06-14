@@ -16,8 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .test_app.views import table_metadata_endpoint
+from .views import table_metadata_endpoint
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/table-metadata/', table_metadata_endpoint)
 ]
