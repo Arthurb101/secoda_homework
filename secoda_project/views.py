@@ -27,18 +27,31 @@ def table_metadata_endpoint(request):
         # schema: str
         # database: str
         #}
-
-        table_metadata = []
+        print(tables)
+        table_metadata_list = []
 
         #go through the tables
         for table in tables:
-            column_metadata = []
-            # ColumnMetadata = {
-                # col_name: str
-                # col_type: str
-                # }
+            column_metadata_list = []
+            columns = inspector.get_columns(table)
+            print(columns)
             #go through the columns
             for column in columns:
+                column_metadata = {
+                    'col_name': column['name'],
+                    'col_type': column['type'],
+                }
+                column_metadata_list.append(column_metadata)
+            table_metadata = {
+                'columns': column_metadata_list,
+                'num_rows': 'add_later',
+                'schema': 'add_later',
+                'database': 'add_later',
+            }
+            print(table_metadata)
+            table_metadata_list.append(table_metadata)
+        #verify everything is working and we are getting the correct data
+        print(table_metadata_list)
                 
 
 
