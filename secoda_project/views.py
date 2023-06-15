@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from sqlalchemy import create_engine, inspect, text
-from django.http import HttpResponse
+from django.http import JsonResponse
 
 @csrf_exempt
 def table_metadata_endpoint(request):
@@ -29,7 +29,7 @@ def table_metadata_endpoint(request):
             # schema: str
             # database: str
             #}
-            print(tables)
+            
             table_metadata_list = []
             #could get it from the data_base_login but this is easier
             data_base_name = inspector.engine.url.database
@@ -43,14 +43,15 @@ def table_metadata_endpoint(request):
                 data_base_schema = table
 
                 query = 'SELECT COUNT(*) FROM ' + table
-                print(query)
+                
                 #not the most afficent method but it works, I would talk to a dev who know sqlAlchemy how to do this more efficentely in prod
                 row_count = con.execute(text(query)).scalar()
                 #go through the columns
                 for column in columns:
+                    
                     column_metadata = {
                         'col_name': column['name'],
-                        'col_type': column['type'],
+                        'col_type': str(column['type']),
                     }
                     column_metadata_list.append(column_metadata)
                 table_metadata = {
@@ -59,12 +60,8 @@ def table_metadata_endpoint(request):
                     'schema': data_base_schema,
                     'database': data_base_name,
                 }
-                print(table_metadata)
-                table_metadata_list.append(table_metadata)
-            #verify everything is working and we are getting the correct data
-            print(table_metadata_list)
                 
+                table_metadata_list.append(table_metadata)
+            
 
-
-        #will get to the Json response later
-        return HttpResponse('helloWorld', 200)
+        return JsonResponse(table_metadata_list, safe=False, status=200)
