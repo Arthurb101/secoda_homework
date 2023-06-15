@@ -15,20 +15,16 @@ def table_metadata_endpoint(request):
         #if no tables then simply return an empty list to represent an empty table
         #in prod I would talk to my PM about expected output in case of empty table but we are just keeping it simple to save time right now
         # each table could have many or no rows or columns
-        engine = create_engine(data_base_login)
-        inspector = inspect(engine)
+        try:
+            engine = create_engine(data_base_login)
+            inspector = inspect(engine)
+        except :
+            return JsonResponse({'error':'was unable to connect to DB'}, status=400)
         with engine.connect() as con:
         
             #lets grab some tables to see verify we are connecting and able to read from the DB
             tables = inspector.get_table_names()
             
-            #lets build out how I will go through the DB's
-            # TableMetadata = {
-            # columns: List[ColumnMetadata]
-            # num_rows: int
-            # schema: str
-            # database: str
-            #}
             
             table_metadata_list = []
             #could get it from the data_base_login but this is easier
@@ -63,5 +59,6 @@ def table_metadata_endpoint(request):
                 
                 table_metadata_list.append(table_metadata)
             
-
+            con.close()
         return JsonResponse(table_metadata_list, safe=False, status=200)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
